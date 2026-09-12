@@ -1,0 +1,23 @@
+apiVersion: longhorn.io/v1beta2
+kind: RecurringJob
+metadata:
+  name: snapshot-job
+  namespace: longhorn-system
+# Recurring snapshot job for volumes tagged with "snapped-volumes".
+# Snapshots are like git commits for volumes. They allow rollback to a previous point in time.
+# Snapshots are stored alongside replicas and are also replicated.
+#
+# Schedule: Every 5 minutes
+# Retain: Keep the last 5 snapshots
+# Concurrency: 1 (run one snapshot job at a time)
+#
+# To link volumes to this job, label the PVC:
+#   recurring-job.longhorn.io/source: "enabled"
+#   recurring-job-group.longhorn.io/snapped-volumes: "enabled"
+spec:
+  task: snapshot
+  cron: "*/5 * * * *"
+  retain: 5
+  concurrency: 1
+  groups:
+    - snapped-volumes

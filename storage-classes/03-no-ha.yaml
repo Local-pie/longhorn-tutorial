@@ -1,0 +1,23 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: longhorn-no-ha
+# Single-replica storage class for workloads that do not need high availability.
+# Use this for:
+#   - Temporary data (caches, build artifacts)
+#   - Logs and metrics (retrievable from source)
+#   - Development/testing environments
+#
+# This class uses only 1 replica, so it does NOT protect against node or disk failure.
+# It saves storage space since Longhorn does not triple the volume size.
+#
+# Usage in PVC:
+#   storageClassName: longhorn-no-ha
+
+provisioner: driver.longhorn.io
+parameters:
+  numberOfReplicas: "1"
+  dataLocality: "disabled"
+  staleReplicaTimeout: "30"
+allowVolumeExpansion: true
+reclaimPolicy: Delete

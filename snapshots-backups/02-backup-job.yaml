@@ -1,0 +1,24 @@
+apiVersion: longhorn.io/v1beta2
+kind: RecurringJob
+metadata:
+  name: daily-backup-job
+  namespace: longhorn-system
+# Recurring backup job for volumes tagged with "backed-volumes".
+# Backups are stored externally (S3, NFS) and are your last line of defense.
+# Only back up valuable data. Not everything needs a backup.
+#
+# Schedule: Every day at midnight (00:00)
+# Retain: Keep the last 3 backups
+# Concurrency: 1 (run one backup job at a time)
+#
+# To link volumes to this job, label the PVC:
+#   recurring-job.longhorn.io/source: "enabled"
+#   recurring-job-group.longhorn.io/backed-volumes: "enabled"
+spec:
+  name: daily-backup-job
+  task: backup
+  cron: "0 0 * * *"
+  retain: 3
+  concurrency: 1
+  groups:
+    - backed-volumes

@@ -1,0 +1,65 @@
+# Longhorn values.yaml for Raspberry Pi K3s cluster
+# Based on: https://preprod.thethoughtprocess.xyz/en/series/home-server/how-to-install-and-use-longhorn-kubernetes-storage
+#
+# This configuration is tuned for a small homelab cluster.
+# Adjust replica count, storage thresholds, and ingress settings to match your setup.
+
+defaultSettings:
+  # Default replica count for volumes created via Longhorn UI.
+  # Set to 2 for a 2-node cluster. Use 3 if you have 3+ nodes.
+  defaultReplicaCount: 2
+
+  # Minimum available storage percentage before Longhorn stops scheduling replicas.
+  # Default is 25%. Lowered to 10% to reclaim usable space on small disks.
+  storageMinimalAvailablePercentage: 10
+
+  # Node down pod deletion policy.
+  # When a node is marked down, delete pods using Longhorn volumes immediately.
+  # Trade-off: faster recovery but risk of data loss if node is only partitioned, not dead.
+  # nodeDownPodDeletionPolicy: "do-nothing"  # default
+  # nodeDownPodDeletionPolicy: "delete-statefulset-pod"
+  # nodeDownPodDeletionPolicy: "delete-deployment-pod"
+  # nodeDownPodDeletionPolicy: "delete-both-statefulset-and-deployment-pod"
+
+persistence:
+  # Default replica count for PVCs provisioned through Kubernetes.
+  defaultClassReplicaCount: 2
+
+  # Data locality: "best-effort" keeps a local replica on the same node as the pod.
+  # Improves read latency. Use "disabled" for strict locality control.
+  defaultDataLocality: "best-effort"
+
+  # Scheduling policy for replicas.
+  # "true" allows replicas on disks that are already full (not recommended for production).
+  # "false" (default) only schedules on disks with available space.
+  # schedulingMinimalAvailablePercentage: 10
+
+ingress:
+  enabled: true
+  # Change to your cluster's internal domain.
+  host: longhorn.home.arpa
+  tls: false
+  # annotations:
+  #   nginx.ingress.kubernetes.io/ssl-redirect: "true"
+  #   cert-manager.io/cluster-issuer: letsencrypt-prod
+
+# Metrics integration with Prometheus.
+# Uncomment to enable metrics collection.
+# metrics:
+#   defaultMetricsEnabled: true
+
+# Pre-upgrade checks.
+# Disable if installing via Argo CD or similar GitOps tools.
+preUpgradeChecker:
+  jobEnabled: true
+
+# Engine image settings.
+# V1 is stable and recommended for production. V2 is faster but experimental.
+# engineImage:
+#   defaultEngineImage: "longhornio/longhorn-engine:v1.7.0"
+#   defaultTag: "v1.7.0"
+
+# Backup settings (see snapshots-backups/ for full backup configuration).
+# defaultBackupStore:
+#   backupTarget: s3://longhorn-backups@garage/
+#   backupTargetCredentialSecret: longhorn-backup-store

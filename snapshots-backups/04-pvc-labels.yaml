@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: my-backup-pvc
+  namespace: default
+  labels:
+    # 1. Enables syncing between the PVC and the Longhorn volume for recurring jobs.
+    recurring-job.longhorn.io/source: "enabled"
+    # 2. Assigns this PVC to the "snapped-volumes" group (snapshot job).
+    recurring-job-group.longhorn.io/snapped-volumes: "enabled"
+    # 3. Assigns this PVC to the "backed-volumes" group (backup job).
+    recurring-job-group.longhorn.io/backed-volumes: "enabled"
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: 20Gi
+# Alternative: Label an existing PVC with kubectl
+# kubectl label pvc my-pvc -n default recurring-job.longhorn.io/source=enabled
+# kubectl label pvc my-pvc -n default recurring-job-group.longhorn.io/snapped-volumes=enabled
+# kubectl label pvc my-pvc -n default recurring-job-group.longhorn.io/backed-volumes=enabled

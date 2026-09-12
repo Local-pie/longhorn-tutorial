@@ -1,0 +1,23 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: longhorn-node-aware
+# Node-aware storage class for controlled replica placement.
+# Allows multiple replicas on the same node but not on the same disk.
+# Use this when you have fewer nodes than replicas but still want some redundancy.
+#
+# Key parameters:
+#   numberOfReplicas: 3
+#   replicaNodeAntiAffinity: enabled - replicas on different nodes
+#   replicaDiskAntiAffinity: disabled - allows multiple replicas per node (but not per disk)
+#
+# This is a middle ground between single-replica and zone-aware classes.
+
+provisioner: driver.longhorn.io
+parameters:
+  numberOfReplicas: "3"
+  replicaNodeAntiAffinity: "enabled"
+  replicaDiskAntiAffinity: "disabled"
+  dataLocality: "best-effort"
+allowVolumeExpansion: true
+reclaimPolicy: Retain

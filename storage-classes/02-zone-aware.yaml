@@ -1,0 +1,26 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: longhorn-zone-aware
+# Zone-aware storage class for 3-zone clusters.
+# Spreads replicas across availability zones for maximum resilience.
+# Use this for critical workloads that need high availability across zones.
+#
+# Key parameters:
+#   numberOfReplicas: 3 - one replica per zone
+#   replicaZoneSoftAntiAffinity: enabled - prefers different zones but allows fallback
+#   dataLocality: best-effort - keeps one replica on the pod's node for fast reads
+#
+# Usage in PVC:
+#   storageClassName: longhorn-zone-aware
+#
+# Note: Creating classes with too many replicas causes write latency spikes.
+# Anything above 3 replicas is not recommended in most setups.
+
+provisioner: driver.longhorn.io
+parameters:
+  numberOfReplicas: "3"
+  replicaZoneSoftAntiAffinity: "enabled"
+  dataLocality: "best-effort"
+allowVolumeExpansion: true
+reclaimPolicy: Retain
